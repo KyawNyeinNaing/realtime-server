@@ -15,23 +15,39 @@ const io = new Server(server, {
   },
 });
 
+app.get("/", (req, res) => {
+  res.send("Server running!");
+});
+
+app.get("*", (req, res) => {
+  res.send("404!!!");
+});
+
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
 
-  socket.on("join_room", (data) => {
-    socket.join(data);
-    console.log(`User with ID: ${socket.id} joined room: ${data}`);
+  socket.on("join_room", (room) => {
+    socket.join(room);
+
+    console.log(`User with ID: ${socket.id} joined room: ${room}`);
+    // console.log("Join member: ", io.sockets.adapter.rooms.get(room).size);
   });
 
   socket.on("send_message", (data) => {
     socket.to(data.room).emit("receive_message", data);
+    socket
+      .to(data.room)
+      .emit("member_count", io.sockets.adapter.rooms.get(data.room).size);
   });
 
   socket.on("disconnect", () => {
+    // socket.to(room).emit("member_count", memberCount--);
+
     console.log("User Disconnected", socket.id);
   });
 });
 
-server.listen(5000, () => {
-  console.log("Application is running on port ${port}");
+const port = process.env.PORT || 5000;
+server.listen(port, () => {
+  console.log(`Application is running on port ${port}`);
 });
