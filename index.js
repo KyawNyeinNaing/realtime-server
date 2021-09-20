@@ -16,7 +16,7 @@ const io = new Server(server, {
 });
 
 app.get("/", (req, res) => {
-  res.send("Server running!");
+  res.send("<h1>Server is running!</h1>");
 });
 
 app.get("*", (req, res) => {
@@ -28,16 +28,17 @@ io.on("connection", (socket) => {
 
   socket.on("join_room", (room) => {
     socket.join(room);
+    socket.in(room).emit("member_count", io.sockets.adapter.rooms.get(room).size);
 
     console.log(`User with ID: ${socket.id} joined room: ${room}`);
-    // console.log("Join member: ", io.sockets.adapter.rooms.get(room).size);
+    console.log("Join member: ", io.sockets.adapter.rooms.get(room).size);
+
+    let socketsOfRoom = io.sockets.adapter.rooms;
+    console.log(socketsOfRoom?.length);
   });
 
   socket.on("send_message", (data) => {
     socket.to(data.room).emit("receive_message", data);
-    socket
-      .to(data.room)
-      .emit("member_count", io.sockets.adapter.rooms.get(data.room).size);
   });
 
   socket.on("disconnect", () => {
