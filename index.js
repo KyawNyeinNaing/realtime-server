@@ -10,7 +10,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://realchat-client.vercel.app/",
+    origin: "https://realchat-client.vercel.app",
     methods: ["GET", "POST"],
   },
 });
